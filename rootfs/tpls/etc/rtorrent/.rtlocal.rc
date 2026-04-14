@@ -34,9 +34,6 @@ network.port_random.set = no
 # UDP port to use for DHT
 dht.override_port.set = @RT_DHT_PORT@
 
-# XMLRPC size limit
-network.xmlrpc.size_limit.set = @XMLRPC_SIZE_LIMIT@
-
 # Configure session saving interval to balance disk usage and torrent information accuracy
 schedule2 = session_save, 1200, @RT_SESSION_SAVE_SECONDS@, ((session.save))
 
@@ -65,6 +62,3 @@ log.add_output = "@RT_LOG_LEVEL@","log"
 log.add_output = "rpc_events","log"
 #log.execute = (cat,(cfg.logs),"execute.log")
 #log.xmlrpc = (cat,(cfg.logs),"xmlrpc.log")
-
-# Initialize plugins after a 10 seconds delay
-schedule2 = init_plugins, 10, 0, "execute2 = {sh,-c,/usr/bin/php84 /var/www/rutorrent/php/initplugins.php rtorrent &}"

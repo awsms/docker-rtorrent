@@ -1,11 +1,7 @@
-#!/usr/bin/env sh
+#!/bin/sh
 set -e
 
-# rTorrent
-curl --fail -H "Content-Type: text/xml" -d "<?xml version='1.0'?><methodCall><methodName>system.api_version</methodName></methodCall>" http://127.0.0.1:8001
-
-# ruTorrent / PHP
-curl --fail http://127.0.0.1:8081/ping
-
-# WebDAV
-curl --fail http://127.0.0.1:9001
+[ -s /var/run/rtorrent/rtorrent.pid ]
+pid=$(cat /var/run/rtorrent/rtorrent.pid)
+kill -0 "${pid}"
+[ -S /var/run/rtorrent/scgi.socket ]

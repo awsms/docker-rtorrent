@@ -1,37 +1,31 @@
-name: rtorrent-rutorrent
+name: rtorrent
 
 services:
-  rtorrent-rutorrent:
-    image: ${RTORRENT_RUTORRENT_IMAGE:-crazymax/rtorrent-rutorrent}
-    container_name: ${RTORRENT_RUTORRENT_CONTAINER:-rtorrent-rutorrent}
+  rtorrent:
+    build:
+      context: ..
+      args:
+        LIBTORRENT_VERSION: ${LIBTORRENT_VERSION:-0.16.7}
+        RTORRENT_VERSION: ${RTORRENT_VERSION:-0.16.7}
+    image: ${RTORRENT_IMAGE:-docker-rtorrent:${RTORRENT_VERSION:-0.16.7}}
+    container_name: ${RTORRENT_CONTAINER:-rtorrent}
     networks:
-      - rtorrent-rutorrent
+      - rtorrent
     expose:
       - "${RT_DHT_PORT}/udp"
-      - "${XMLRPC_PORT}"
-      - "${RUTORRENT_PORT}"
-      - "${WEBDAV_PORT}"
       - "${RT_INC_PORT}"
     ports:
       - target: ${RT_DHT_PORT}
         published: ${RT_DHT_PORT}
         protocol: udp
-      - target: ${RUTORRENT_PORT}
-        published: ${RUTORRENT_PORT}
-        protocol: tcp
-      - target: ${WEBDAV_PORT}
-        published: ${WEBDAV_PORT}
-        protocol: tcp
       - target: ${RT_INC_PORT}
         published: ${RT_INC_PORT}
         protocol: tcp
     env_file:
-      - "rtorrent-rutorrent.env"
-      - ".env"
+      - "rtorrent.env"
     volumes:
-      - "rtorrent-rutorrent-data:/data"
-      - "rtorrent-rutorrent-downloads:/downloads"
-      - "rtorrent-rutorrent-passwd:/passwd"
+      - "rtorrent-data:/data"
+      - "rtorrent-downloads:/downloads"
     ulimits:
       nproc: 65535
       nofile:
@@ -41,20 +35,19 @@ services:
 
   rtorrent-logs:
     image: bash
-    container_name: rtorrent-rutorrent-logs
+    container_name: rtorrent-logs
     command: bash -c 'tail -f /data/rtorrent/log/*.log'
     network_mode: none
     depends_on:
-      - rtorrent-rutorrent
+      - rtorrent
     volumes:
-      - "rtorrent-rutorrent-data:/data"
+      - "rtorrent-data:/data"
     restart: always
 
 volumes:
-  rtorrent-rutorrent-data:
-  rtorrent-rutorrent-downloads:
-  rtorrent-rutorrent-passwd:
+  rtorrent-data:
+  rtorrent-downloads:
 
 networks:
-  rtorrent-rutorrent:
-    name: rtorrent-rutorrent
+  rtorrent:
+    name: rtorrent

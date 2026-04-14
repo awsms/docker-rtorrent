@@ -1,48 +1,31 @@
-name: rtorrent-rutorrent
+name: rtorrent
 
 services:
-  geoip-updater:
-    image: crazymax/geoip-updater:latest
-    container_name: geoip-updater
+  rtorrent:
+    build:
+      context: ../..
+      args:
+        LIBTORRENT_VERSION: ${LIBTORRENT_VERSION:-0.16.7}
+        RTORRENT_VERSION: ${RTORRENT_VERSION:-0.16.7}
+    image: docker-rtorrent:${RTORRENT_VERSION:-0.16.7}
+    container_name: rtorrent
     networks:
-      - rtorrent-rutorrent
-    volumes:
-      - "./data/geoip:/data"
-    env_file:
-      - "./geoip-updater.env"
-    restart: always
-
-  rtorrent-rutorrent:
-    image: crazymax/rtorrent-rutorrent:latest
-    container_name: rtorrent-rutorrent
-    networks:
-      - rtorrent-rutorrent
+      - rtorrent
     expose:
       - "${RT_DHT_PORT}/udp"
-      - "${XMLRPC_PORT}"
-      - "${RUTORRENT_PORT}"
-      - "${WEBDAV_PORT}"
       - "${RT_INC_PORT}"
     ports:
       - target: ${RT_DHT_PORT}
         published: ${RT_DHT_PORT}
         protocol: udp
-      - target: ${RUTORRENT_PORT}
-        published: ${RUTORRENT_PORT}
-        protocol: tcp
-      - target: ${WEBDAV_PORT}
-        published: ${WEBDAV_PORT}
-        protocol: tcp
       - target: ${RT_INC_PORT}
         published: ${RT_INC_PORT}
         protocol: tcp
     env_file:
-      - "rtorrent-rutorrent.env"
-      - ".env"
+      - "rtorrent.env"
     volumes:
       - "./data:/data"
       - "./downloads:/downloads"
-      - "./passwd:/passwd"
     ulimits:
       nproc: 65535
       nofile:
@@ -52,15 +35,15 @@ services:
 
   rtorrent-logs:
     image: bash
-    container_name: rtorrent-rutorrent-logs
+    container_name: rtorrent-logs
     command: bash -c 'tail -f /log/*.log'
     network_mode: none
     depends_on:
-      - rtorrent-rutorrent
+      - rtorrent
     volumes:
       - "./data/rtorrent/log:/log"
     restart: always
 
 networks:
-  rtorrent-rutorrent:
-    name: rtorrent-rutorrent
+  rtorrent:
+    name: rtorrent
