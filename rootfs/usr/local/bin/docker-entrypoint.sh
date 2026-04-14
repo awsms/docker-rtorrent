@@ -29,7 +29,7 @@ RT_PREALLOCATE_TYPE=${RT_PREALLOCATE_TYPE:-0}
 RT_DHT_PORT=${RT_DHT_PORT:-6881}
 RT_INC_PORT=${RT_INC_PORT:-50000}
 
-if [ -z "${WAN_IP:-}" ] && [ -n "${WAN_IP_CMD:-}" ]; then
+if [ -z "${WAN_IP:-}" ] && [ -n "${WAN_IP_CMD:-}" ] && [ "${WAN_IP_CMD}" != "false" ]; then
   WAN_IP=$(eval "$WAN_IP_CMD")
 fi
 if [ -n "${WAN_IP:-}" ]; then

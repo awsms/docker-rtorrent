@@ -51,7 +51,7 @@ docker build \
 * `PUID`: rTorrent user id. Default `1000`
 * `PGID`: rTorrent group id. Default `1000`
 * `WAN_IP`: Public IP address announced to trackers. Empty by default
-* `WAN_IP_CMD`: Command used to resolve `WAN_IP` when it is unset
+* `WAN_IP_CMD`: Command used to resolve `WAN_IP` when it is unset. Set to `false` or leave empty to disable it
 * `RT_BASEDIR`: Base directory for rTorrent state and `.rtorrent.rc`. Default `/data/rtorrent`
 * `RT_DOWNLOAD_DIR`: Download root. Default `/downloads`
 * `RT_DOWNLOAD_COMPLETE_DIR`: Completed downloads directory. Default `${RT_DOWNLOAD_DIR}/complete`
@@ -143,6 +143,9 @@ directly or provide a `WAN_IP_CMD` such as:
 * `dig +short myip.opendns.com @resolver1.opendns.com`
 * `curl -s ifconfig.me`
 * `curl -s ident.me`
+
+Set `WAN_IP_CMD=false` or leave it empty if you do not want the container to
+attempt public IP discovery at startup.
 
 If you seed a large session, increase the container stop timeout so `rtorrent`
 has time to shut down cleanly and clear its lock file.
