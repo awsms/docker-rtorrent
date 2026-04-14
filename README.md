@@ -60,6 +60,7 @@ docker build \
 * `RT_SESSION_DIR`: Session directory. Default `${RT_BASEDIR}/.session`
 * `RT_WATCH_DIR`: Watch directory. Default `${RT_BASEDIR}/watch`
 * `RT_RUNTIME_DIR`: Runtime directory for PID and SCGI socket. Default `/var/run/rtorrent`
+* `RT_SCGI_SOCKET_NAME`: SCGI socket filename inside `RT_RUNTIME_DIR`. Default `scgi.socket`
 
 ### rTorrent
 
@@ -131,7 +132,7 @@ When `rtorrent` starts, it imports [.rtlocal.rc](/home/ash/Appz/forks/docker-rto
 * `/data/rtorrent` as the base directory
 * `/downloads/temp` and `/downloads/complete` as payload directories
 * `/data/rtorrent/.session` and `/data/rtorrent/log` as state directories
-* a local SCGI socket at `/var/run/rtorrent/scgi.socket`
+* a local SCGI socket at `${RT_RUNTIME_DIR}/${RT_SCGI_SOCKET_NAME}`
 * the logging and performance-related settings controlled by the `RT_*` environment variables
 
 If `/data/rtorrent/.rtorrent.rc` does not exist, the container seeds it from
@@ -153,6 +154,13 @@ has time to shut down cleanly and clear its lock file.
 If your existing torrents already use absolute `/data/...` paths, set
 `RT_DOWNLOAD_DIR=/data` and move the state elsewhere with `RT_BASEDIR`, such as
 `RT_BASEDIR=/config/rtorrent1`.
+
+If another client expects a specific SCGI socket path, set `RT_RUNTIME_DIR` and
+`RT_SCGI_SOCKET_NAME` accordingly. For example, to expose
+`/config/rtorrent1/session/rtorrent.sock`, use:
+
+* `RT_RUNTIME_DIR=/config/rtorrent1/session`
+* `RT_SCGI_SOCKET_NAME=rtorrent.sock`
 
 `RT_SESSION_SAVE_SECONDS` defaults to 3600 to reduce disk churn compared to
 much more aggressive session flush intervals.

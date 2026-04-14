@@ -15,6 +15,7 @@ RT_LOG_DIR=${RT_LOG_DIR:-${RT_BASEDIR}/log}
 RT_SESSION_DIR=${RT_SESSION_DIR:-${RT_BASEDIR}/.session}
 RT_WATCH_DIR=${RT_WATCH_DIR:-${RT_BASEDIR}/watch}
 RT_RUNTIME_DIR=${RT_RUNTIME_DIR:-/var/run/rtorrent}
+RT_SCGI_SOCKET_NAME=${RT_SCGI_SOCKET_NAME:-scgi.socket}
 
 RT_LOG_LEVEL=${RT_LOG_LEVEL:-info}
 RT_LOG_EXECUTE=${RT_LOG_EXECUTE:-false}
@@ -78,11 +79,15 @@ cat > /usr/local/bin/healthcheck <<'EOL'
 #!/bin/sh
 set -e
 
-[ -s /var/run/rtorrent/rtorrent.pid ]
-pid=$(cat /var/run/rtorrent/rtorrent.pid)
+[ -s "@RT_RUNTIME_DIR@/rtorrent.pid" ]
+pid=$(cat "@RT_RUNTIME_DIR@/rtorrent.pid")
 kill -0 "${pid}"
-[ -S /var/run/rtorrent/scgi.socket ]
+[ -S "@RT_RUNTIME_DIR@/@RT_SCGI_SOCKET_NAME@" ]
 EOL
+sed -i \
+  -e "s!@RT_RUNTIME_DIR@!$RT_RUNTIME_DIR!g" \
+  -e "s!@RT_SCGI_SOCKET_NAME@!$RT_SCGI_SOCKET_NAME!g" \
+  /usr/local/bin/healthcheck
 chmod +x /usr/local/bin/healthcheck
 
 echo "Initializing files and folders..."
@@ -112,6 +117,7 @@ sed -e "s!@RT_LOG_LEVEL@!$RT_LOG_LEVEL!g" \
   -e "s!@RT_SESSION_DIR@!$RT_SESSION_DIR!g" \
   -e "s!@RT_WATCH_DIR@!$RT_WATCH_DIR!g" \
   -e "s!@RT_RUNTIME_DIR@!$RT_RUNTIME_DIR!g" \
+  -e "s!@RT_SCGI_SOCKET_NAME@!$RT_SCGI_SOCKET_NAME!g" \
   /tpls/etc/rtorrent/.rtlocal.rc > /etc/rtorrent/.rtlocal.rc
 if [ "${RT_LOG_EXECUTE}" = "true" ]; then
   echo "  Enabling rTorrent execute log..."
