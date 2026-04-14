@@ -7,6 +7,15 @@ TZ=${TZ:-UTC}
 PUID=${PUID:-1000}
 PGID=${PGID:-1000}
 
+RT_BASEDIR=${RT_BASEDIR:-/data/rtorrent}
+RT_DOWNLOAD_DIR=${RT_DOWNLOAD_DIR:-/downloads}
+RT_DOWNLOAD_COMPLETE_DIR=${RT_DOWNLOAD_COMPLETE_DIR:-${RT_DOWNLOAD_DIR}/complete}
+RT_DOWNLOAD_TEMP_DIR=${RT_DOWNLOAD_TEMP_DIR:-${RT_DOWNLOAD_DIR}/temp}
+RT_LOG_DIR=${RT_LOG_DIR:-${RT_BASEDIR}/log}
+RT_SESSION_DIR=${RT_SESSION_DIR:-${RT_BASEDIR}/.session}
+RT_WATCH_DIR=${RT_WATCH_DIR:-${RT_BASEDIR}/watch}
+RT_RUNTIME_DIR=${RT_RUNTIME_DIR:-/var/run/rtorrent}
+
 RT_LOG_LEVEL=${RT_LOG_LEVEL:-info}
 RT_LOG_EXECUTE=${RT_LOG_EXECUTE:-false}
 RT_LOG_XMLRPC=${RT_LOG_XMLRPC:-false}
@@ -27,6 +36,19 @@ if [ -n "${WAN_IP:-}" ]; then
   echo "Public IP address enforced to ${WAN_IP}"
 fi
 
+trim_slash() {
+  printf '%s' "$1" | sed 's:/*$::'
+}
+
+RT_BASEDIR=$(trim_slash "${RT_BASEDIR}")
+RT_DOWNLOAD_DIR=$(trim_slash "${RT_DOWNLOAD_DIR}")
+RT_DOWNLOAD_COMPLETE_DIR=$(trim_slash "${RT_DOWNLOAD_COMPLETE_DIR}")
+RT_DOWNLOAD_TEMP_DIR=$(trim_slash "${RT_DOWNLOAD_TEMP_DIR}")
+RT_LOG_DIR=$(trim_slash "${RT_LOG_DIR}")
+RT_SESSION_DIR=$(trim_slash "${RT_SESSION_DIR}")
+RT_WATCH_DIR=$(trim_slash "${RT_WATCH_DIR}")
+RT_RUNTIME_DIR=$(trim_slash "${RT_RUNTIME_DIR}")
+
 echo "Setting timezone to ${TZ}..."
 ln -snf "/usr/share/zoneinfo/${TZ}" /etc/localtime
 echo "${TZ}" > /etc/timezone
@@ -42,12 +64,13 @@ if [ "${PUID}" != "$(id -u rtorrent)" ]; then
 fi
 
 echo "Fixing perms..."
-mkdir -p /data/rtorrent \
-  /downloads \
+mkdir -p "${RT_BASEDIR}" \
+  "${RT_DOWNLOAD_DIR}" \
+  "${RT_RUNTIME_DIR}" \
   /etc/rtorrent \
-  /var/run/rtorrent
-chown rtorrent:rtorrent /data /data/rtorrent /downloads
-chown -R rtorrent:rtorrent /etc/rtorrent /tpls /var/run/rtorrent
+  /tpls
+chown rtorrent:rtorrent "${RT_BASEDIR}" "${RT_DOWNLOAD_DIR}"
+chown -R rtorrent:rtorrent /etc/rtorrent /tpls "${RT_RUNTIME_DIR}"
 chown "${PUID}:${PGID}" /proc/self/fd/1 /proc/self/fd/2 || true
 
 echo "Update healthcheck script..."
@@ -63,13 +86,13 @@ EOL
 chmod +x /usr/local/bin/healthcheck
 
 echo "Initializing files and folders..."
-mkdir -p /data/rtorrent/log \
-  /data/rtorrent/.session \
-  /data/rtorrent/watch \
-  /downloads/complete \
-  /downloads/temp
-touch /data/rtorrent/log/rtorrent.log
-rm -f /data/rtorrent/.session/rtorrent.lock
+mkdir -p "${RT_LOG_DIR}" \
+  "${RT_SESSION_DIR}" \
+  "${RT_WATCH_DIR}" \
+  "${RT_DOWNLOAD_COMPLETE_DIR}" \
+  "${RT_DOWNLOAD_TEMP_DIR}"
+touch "${RT_LOG_DIR}/rtorrent.log"
+rm -f "${RT_SESSION_DIR}/rtorrent.lock"
 
 echo "Checking rTorrent local configuration..."
 sed -e "s!@RT_LOG_LEVEL@!$RT_LOG_LEVEL!g" \
@@ -81,6 +104,14 @@ sed -e "s!@RT_LOG_LEVEL@!$RT_LOG_LEVEL!g" \
   -e "s!@RT_SEND_BUFFER_SIZE@!$RT_SEND_BUFFER_SIZE!g" \
   -e "s!@RT_RECEIVE_BUFFER_SIZE@!$RT_RECEIVE_BUFFER_SIZE!g" \
   -e "s!@RT_PREALLOCATE_TYPE@!$RT_PREALLOCATE_TYPE!g" \
+  -e "s!@RT_BASEDIR@!$RT_BASEDIR!g" \
+  -e "s!@RT_DOWNLOAD_DIR@!$RT_DOWNLOAD_DIR!g" \
+  -e "s!@RT_DOWNLOAD_COMPLETE_DIR@!$RT_DOWNLOAD_COMPLETE_DIR!g" \
+  -e "s!@RT_DOWNLOAD_TEMP_DIR@!$RT_DOWNLOAD_TEMP_DIR!g" \
+  -e "s!@RT_LOG_DIR@!$RT_LOG_DIR!g" \
+  -e "s!@RT_SESSION_DIR@!$RT_SESSION_DIR!g" \
+  -e "s!@RT_WATCH_DIR@!$RT_WATCH_DIR!g" \
+  -e "s!@RT_RUNTIME_DIR@!$RT_RUNTIME_DIR!g" \
   /tpls/etc/rtorrent/.rtlocal.rc > /etc/rtorrent/.rtlocal.rc
 if [ "${RT_LOG_EXECUTE}" = "true" ]; then
   echo "  Enabling rTorrent execute log..."
@@ -92,27 +123,24 @@ if [ "${RT_LOG_XMLRPC}" = "true" ]; then
 fi
 
 echo "Checking rTorrent configuration..."
-if [ ! -f /data/rtorrent/.rtorrent.rc ]; then
+if [ ! -f "${RT_BASEDIR}/.rtorrent.rc" ]; then
   echo "  Creating default configuration..."
-  cp /tpls/.rtorrent.rc /data/rtorrent/.rtorrent.rc
+  cp /tpls/.rtorrent.rc "${RT_BASEDIR}/.rtorrent.rc"
 fi
 
 echo "Fixing perms..."
-chown rtorrent:rtorrent \
-  /downloads \
-  /downloads/complete \
-  /downloads/temp
 chown -R rtorrent:rtorrent \
-  /data/rtorrent \
+  "${RT_BASEDIR}" \
+  "${RT_DOWNLOAD_DIR}" \
   /etc/rtorrent \
-  /var/run/rtorrent
-chmod 644 /data/rtorrent/.rtorrent.rc /etc/rtorrent/.rtlocal.rc
+  "${RT_RUNTIME_DIR}"
+chmod 644 "${RT_BASEDIR}/.rtorrent.rc" /etc/rtorrent/.rtlocal.rc
 
 cmd="rtorrent -D -o import=/etc/rtorrent/.rtlocal.rc"
 if [ -n "${WAN_IP:-}" ]; then
   cmd="${cmd} -i ${WAN_IP}"
 fi
 
-cd /data/rtorrent
-export HOME=/data/rtorrent
+cd "${RT_BASEDIR}"
+export HOME="${RT_BASEDIR}"
 exec su-exec "${PUID}:${PGID}" sh -c "${cmd}"

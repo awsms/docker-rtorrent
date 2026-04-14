@@ -52,6 +52,14 @@ docker build \
 * `PGID`: rTorrent group id. Default `1000`
 * `WAN_IP`: Public IP address announced to trackers. Empty by default
 * `WAN_IP_CMD`: Command used to resolve `WAN_IP` when it is unset
+* `RT_BASEDIR`: Base directory for rTorrent state and `.rtorrent.rc`. Default `/data/rtorrent`
+* `RT_DOWNLOAD_DIR`: Download root. Default `/downloads`
+* `RT_DOWNLOAD_COMPLETE_DIR`: Completed downloads directory. Default `${RT_DOWNLOAD_DIR}/complete`
+* `RT_DOWNLOAD_TEMP_DIR`: In-progress downloads directory. Default `${RT_DOWNLOAD_DIR}/temp`
+* `RT_LOG_DIR`: Log directory. Default `${RT_BASEDIR}/log`
+* `RT_SESSION_DIR`: Session directory. Default `${RT_BASEDIR}/.session`
+* `RT_WATCH_DIR`: Watch directory. Default `${RT_BASEDIR}/watch`
+* `RT_RUNTIME_DIR`: Runtime directory for PID and SCGI socket. Default `/var/run/rtorrent`
 
 ### rTorrent
 
@@ -69,10 +77,10 @@ docker build \
 
 ## Volumes
 
-* `/data`: `rtorrent` config, session files, and logs
-* `/downloads`: Torrent payloads
+* `/data`: default location for `rtorrent` config, session files, and logs
+* `/downloads`: default payload location
 
-The container expects these paths to be writable by `PUID:PGID`.
+The container expects the configured `RT_*DIR` paths to be writable by `PUID:PGID`.
 
 ## Ports
 
@@ -138,6 +146,10 @@ directly or provide a `WAN_IP_CMD` such as:
 
 If you seed a large session, increase the container stop timeout so `rtorrent`
 has time to shut down cleanly and clear its lock file.
+
+If your existing torrents already use absolute `/data/...` paths, set
+`RT_DOWNLOAD_DIR=/data` and move the state elsewhere with `RT_BASEDIR`, such as
+`RT_BASEDIR=/config/rtorrent1`.
 
 `RT_SESSION_SAVE_SECONDS` defaults to 3600 to reduce disk churn compared to
 much more aggressive session flush intervals.
