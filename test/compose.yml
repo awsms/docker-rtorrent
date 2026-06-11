@@ -5,9 +5,9 @@ services:
     build:
       context: ..
       args:
-        LIBTORRENT_VERSION: ${LIBTORRENT_VERSION:-0.16.7}
-        RTORRENT_VERSION: ${RTORRENT_VERSION:-0.16.7}
-    image: ${RTORRENT_IMAGE:-docker-rtorrent:${RTORRENT_VERSION:-0.16.7}}
+        LIBTORRENT_VERSION: ${LIBTORRENT_VERSION:-0.16.9}
+        RTORRENT_VERSION: ${RTORRENT_VERSION:-0.16.9}
+    image: ${RTORRENT_IMAGE:-docker-rtorrent:${RTORRENT_VERSION:-0.16.9}}
     container_name: ${RTORRENT_CONTAINER:-rtorrent}
     networks:
       - rtorrent

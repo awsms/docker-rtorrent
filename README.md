@@ -9,12 +9,12 @@ the related runtime baggage.
 
 The build is designed so an image tag maps cleanly to an upstream release.
 
-For example, building `docker-rtorrent:0.16.7` uses:
+For example, building `docker-rtorrent:0.16.9` uses:
 
-* git tag `v0.16.7` from `rakshasa/libtorrent`
-* git tag `v0.16.7` from `rakshasa/rtorrent`
+* git tag `v0.16.9` from `rakshasa/libtorrent`
+* git tag `v0.16.9` from `rakshasa/rtorrent`
 
-By default, both `LIBTORRENT_VERSION` and `RTORRENT_VERSION` are `0.16.7`.
+By default, both `LIBTORRENT_VERSION` and `RTORRENT_VERSION` are `0.16.9`.
 You can override them independently, but most of the time they should match.
 
 ## Features
@@ -29,18 +29,18 @@ You can override them independently, but most of the time they should match.
 ## Build
 
 ```sh
-podman build -t docker-rtorrent:0.16.7 \
-  --build-arg LIBTORRENT_VERSION=0.16.7 \
-  --build-arg RTORRENT_VERSION=0.16.7 .
+podman build -t docker-rtorrent:0.16.9 \
+  --build-arg LIBTORRENT_VERSION=0.16.9 \
+  --build-arg RTORRENT_VERSION=0.16.9 .
 ```
 
 Or with Docker:
 
 ```sh
 docker build \
-  --build-arg LIBTORRENT_VERSION=0.16.7 \
-  --build-arg RTORRENT_VERSION=0.16.7 \
-  -t docker-rtorrent:0.16.7 .
+  --build-arg LIBTORRENT_VERSION=0.16.9 \
+  --build-arg RTORRENT_VERSION=0.16.9 \
+  -t docker-rtorrent:0.16.9 .
 ```
 
 ## Environment Variables
@@ -102,7 +102,7 @@ podman-compose logs -f
 The example compose builds and tags the image as:
 
 ```sh
-docker-rtorrent:${RTORRENT_VERSION:-0.16.7}
+docker-rtorrent:${RTORRENT_VERSION:-0.16.9}
 ```
 
 Minimal `docker run`:
@@ -117,7 +117,7 @@ docker run -d --name rtorrent \
   -p 50000:50000 \
   -v "$(pwd)/data:/data" \
   -v "$(pwd)/downloads:/downloads" \
-  docker-rtorrent:0.16.7
+  docker-rtorrent:0.16.9
 ```
 
 ## Notes
