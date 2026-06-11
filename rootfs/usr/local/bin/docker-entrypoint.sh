@@ -137,9 +137,9 @@ fi
 echo "Fixing perms..."
 chown -R rtorrent:rtorrent \
   "${RT_BASEDIR}" \
-  "${RT_DOWNLOAD_DIR}" \
   /etc/rtorrent \
   "${RT_RUNTIME_DIR}"
+chown rtorrent:rtorrent "${RT_DOWNLOAD_DIR}"
 chmod 644 "${RT_BASEDIR}/.rtorrent.rc" /etc/rtorrent/.rtlocal.rc
 
 cmd="rtorrent -D -o import=/etc/rtorrent/.rtlocal.rc"
