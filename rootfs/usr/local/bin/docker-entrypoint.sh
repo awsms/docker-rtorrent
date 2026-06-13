@@ -20,6 +20,8 @@ RT_SCGI_SOCKET_NAME=${RT_SCGI_SOCKET_NAME:-scgi.socket}
 RT_LOG_LEVEL=${RT_LOG_LEVEL:-info}
 RT_LOG_EXECUTE=${RT_LOG_EXECUTE:-false}
 RT_LOG_XMLRPC=${RT_LOG_XMLRPC:-false}
+RT_ENABLE_DEPRECATED_COMMANDS=${RT_ENABLE_DEPRECATED_COMMANDS:-true}
+RT_ENABLE_INTERMEDIATE_COMMANDS=${RT_ENABLE_INTERMEDIATE_COMMANDS:-true}
 RT_SESSION_SAVE_SECONDS=${RT_SESSION_SAVE_SECONDS:-3600}
 RT_SESSION_FDATASYNC=${RT_SESSION_FDATASYNC:-false}
 RT_TRACKER_DELAY_SCRAPE=${RT_TRACKER_DELAY_SCRAPE:-true}
@@ -169,7 +171,13 @@ chown -R rtorrent:rtorrent \
 chown rtorrent:rtorrent "${RT_DOWNLOAD_DIR}"
 chmod 644 "${RT_BASEDIR}/.rtorrent.rc" /etc/rtorrent/.rtlocal.rc
 
-cmd="rtorrent -D -o import=/etc/rtorrent/.rtlocal.rc"
+cmd="rtorrent"
+if [ "${RT_ENABLE_DEPRECATED_COMMANDS}" = "true" ]; then
+  cmd="${cmd} -D"
+elif [ "${RT_ENABLE_INTERMEDIATE_COMMANDS}" = "true" ]; then
+  cmd="${cmd} -K"
+fi
+cmd="${cmd} -o import=/etc/rtorrent/.rtlocal.rc"
 if [ -n "${WAN_IP:-}" ]; then
   cmd="${cmd} -i ${WAN_IP}"
 fi

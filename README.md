@@ -106,6 +106,8 @@ docker build \
 * `RT_LOG_LEVEL`: rTorrent log level. Default `info`
 * `RT_LOG_EXECUTE`: Log executed commands to `/data/rtorrent/log/execute.log`. Default `false`
 * `RT_LOG_XMLRPC`: Log XMLRPC queries to `/data/rtorrent/log/xmlrpc.log`. Default `false`
+* `RT_ENABLE_DEPRECATED_COMMANDS`: Start rTorrent with `-D` to enable deprecated commands used by legacy configs. Default `true`
+* `RT_ENABLE_INTERMEDIATE_COMMANDS`: When deprecated commands are disabled, start rTorrent with `-K` to allow intermediate commands without XMLRPC. Default `true`
 * `RT_SESSION_SAVE_SECONDS`: Seconds between writing torrent information to disk. Default `3600`
 * `RT_SESSION_FDATASYNC`: Force fdatasync when saving sessions via `system.files.session.fdatasync.set`. Default `false`
 * `RT_TRACKER_DELAY_SCRAPE`: Delay tracker announces at startup. Default `true`
