@@ -5,9 +5,10 @@ only. It keeps the useful bootstrap logic, non-root runtime, and the
 `rtorrent` tuning knobs, while removing `ruTorrent`, PHP, nginx, WebDAV, and
 the related runtime baggage.
 
-## Versioning
+## Source Refs
 
-The build is designed so an image tag maps cleanly to an upstream release.
+The `LIBTORRENT_VERSION` and `RTORRENT_VERSION` build args accept upstream git
+refs.
 
 For example, building `docker-rtorrent:0.16.13` uses:
 
@@ -15,12 +16,22 @@ For example, building `docker-rtorrent:0.16.13` uses:
 * git tag `v0.16.13` from `rakshasa/rtorrent`
 
 By default, both `LIBTORRENT_VERSION` and `RTORRENT_VERSION` are `0.16.13`.
-You can override them independently, but most of the time they should match.
+Plain release versions like `0.16.13` are expanded to `v0.16.13`.
+
+You can also pass a branch, tag, or full commit hash directly:
+
+* `master`
+* `v0.16.13`
+* `04469ae88780bdb53fc7717939dec59342f96e00`
+
+The Docker image tag is independent of those source refs. Tag the built image
+with whatever makes the result clear, such as `docker-rtorrent:master` or
+`docker-rtorrent:<commit>`.
 
 ## Features
 
 * Runs as a non-root user
-* Builds `libtorrent` and `rtorrent` from upstream git tags
+* Builds `libtorrent` and `rtorrent` from upstream git refs
 * Uses plain Alpine for the runtime image
 * Keeps the tuned bootstrap config in [rootfs/tpls/.rtorrent.rc](/home/ash/Appz/forks/docker-rtorrent/rootfs/tpls/.rtorrent.rc) and [rootfs/tpls/etc/rtorrent/.rtlocal.rc](/home/ash/Appz/forks/docker-rtorrent/rootfs/tpls/etc/rtorrent/.rtlocal.rc)
 * Keeps the runtime knobs for logging, session persistence, tracker scrape delay, socket buffers, and preallocation
@@ -41,6 +52,33 @@ docker build \
   --build-arg LIBTORRENT_VERSION=0.16.13 \
   --build-arg RTORRENT_VERSION=0.16.13 \
   -t docker-rtorrent:0.16.13 .
+```
+
+Build both projects from current upstream `master`:
+
+```sh
+docker build \
+  --build-arg LIBTORRENT_VERSION=master \
+  --build-arg RTORRENT_VERSION=master \
+  -t docker-rtorrent:master .
+```
+
+Or with bake:
+
+```sh
+LIBTORRENT_VERSION=master \
+RTORRENT_VERSION=master \
+DEFAULT_TAG=docker-rtorrent:master \
+docker buildx bake
+```
+
+Build from explicit commits:
+
+```sh
+docker build \
+  --build-arg LIBTORRENT_VERSION=04469ae88780bdb53fc7717939dec59342f96e00 \
+  --build-arg RTORRENT_VERSION=29edda2f153e530177e5038eb1345f1f820129e8 \
+  -t docker-rtorrent:rtorrent-29edda2 .
 ```
 
 ## Environment Variables

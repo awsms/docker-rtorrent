@@ -22,12 +22,26 @@ RUN curl -sSL "https://curl.se/download/curl-${CURL_VERSION}.tar.gz" | tar xz --
 FROM src AS src-libtorrent
 RUN git init . && git remote add origin "https://github.com/rakshasa/libtorrent.git"
 ARG LIBTORRENT_VERSION
-RUN git fetch origin "v${LIBTORRENT_VERSION}" && git checkout -q FETCH_HEAD
+RUN set -eux; \
+    ref="${LIBTORRENT_VERSION}"; \
+    case "${ref}" in \
+      [0-9]*.[0-9]*.[0-9]*) ref="v${ref}" ;; \
+    esac; \
+    git fetch --depth=1 origin "${ref}"; \
+    git checkout -q FETCH_HEAD; \
+    git rev-parse HEAD
 
 FROM src AS src-rtorrent
 RUN git init . && git remote add origin "https://github.com/rakshasa/rtorrent.git"
 ARG RTORRENT_VERSION
-RUN git fetch origin "v${RTORRENT_VERSION}" && git checkout -q FETCH_HEAD
+RUN set -eux; \
+    ref="${RTORRENT_VERSION}"; \
+    case "${ref}" in \
+      [0-9]*.[0-9]*.[0-9]*) ref="v${ref}" ;; \
+    esac; \
+    git fetch --depth=1 origin "${ref}"; \
+    git checkout -q FETCH_HEAD; \
+    git rev-parse HEAD
 
 FROM alpine:${ALPINE_VERSION} AS builder
 RUN apk --update --no-cache add \

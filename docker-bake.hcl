@@ -2,6 +2,14 @@ variable "DEFAULT_TAG" {
   default = "docker-rtorrent:local"
 }
 
+variable "LIBTORRENT_VERSION" {
+  default = "0.16.13"
+}
+
+variable "RTORRENT_VERSION" {
+  default = "0.16.13"
+}
+
 // Special target: https://github.com/docker/metadata-action#bake-definition
 target "docker-metadata-action" {
   tags = ["${DEFAULT_TAG}"]
@@ -14,6 +22,10 @@ group "default" {
 
 target "image" {
   inherits = ["docker-metadata-action"]
+  args = {
+    LIBTORRENT_VERSION = "${LIBTORRENT_VERSION}"
+    RTORRENT_VERSION   = "${RTORRENT_VERSION}"
+  }
 }
 
 target "image-local" {
