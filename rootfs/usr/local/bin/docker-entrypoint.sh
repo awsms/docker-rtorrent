@@ -176,4 +176,36 @@ fi
 
 cd "${RT_BASEDIR}"
 export HOME="${RT_BASEDIR}"
-exec su-exec "${PUID}:${PGID}" sh -c "${cmd}"
+
+echo "Starting rTorrent..."
+su-exec "${PUID}:${PGID}" sh -c "exec ${cmd}" &
+rtorrent_pid=$!
+
+terminate() {
+  kill -TERM "${rtorrent_pid}" 2>/dev/null || true
+  wait "${rtorrent_pid}" 2>/dev/null || true
+}
+trap 'terminate; exit 143' INT TERM
+
+startup_wait_seconds=${RT_STARTUP_WAIT_SECONDS:-30}
+startup_wait_elapsed=0
+while [ "${startup_wait_elapsed}" -lt "${startup_wait_seconds}" ]; do
+  if /usr/local/bin/healthcheck >/dev/null 2>&1; then
+    echo "rTorrent is up and responding on ${RT_RUNTIME_DIR}/${RT_SCGI_SOCKET_NAME}."
+    break
+  fi
+
+  if ! kill -0 "${rtorrent_pid}" 2>/dev/null; then
+    wait "${rtorrent_pid}"
+    exit $?
+  fi
+
+  sleep 1
+  startup_wait_elapsed=$((startup_wait_elapsed + 1))
+done
+
+if [ "${startup_wait_elapsed}" -ge "${startup_wait_seconds}" ]; then
+  echo "WARNING: rTorrent started but did not pass SCGI healthcheck within ${startup_wait_seconds}s."
+fi
+
+wait "${rtorrent_pid}"
