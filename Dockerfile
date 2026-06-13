@@ -112,6 +112,7 @@ RUN apk --update --no-cache add \
     ncurses \
     nghttp2-libs \
     openssl \
+    socat \
     su-exec \
     tzdata \
     zstd-libs \

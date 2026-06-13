@@ -61,6 +61,7 @@ docker build \
 * `RT_WATCH_DIR`: Watch directory. Default `${RT_BASEDIR}/watch`
 * `RT_RUNTIME_DIR`: Runtime directory for PID and SCGI socket. Default `/var/run/rtorrent`
 * `RT_SCGI_SOCKET_NAME`: SCGI socket filename inside `RT_RUNTIME_DIR`. Default `scgi.socket`
+* `RT_HEALTHCHECK_TIMEOUT`: Seconds to wait for the healthcheck SCGI RPC probe. Default `5`
 
 ### rTorrent
 

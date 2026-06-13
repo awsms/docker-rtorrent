@@ -79,10 +79,37 @@ cat > /usr/local/bin/healthcheck <<'EOL'
 #!/bin/sh
 set -e
 
-[ -s "@RT_RUNTIME_DIR@/rtorrent.pid" ]
-pid=$(cat "@RT_RUNTIME_DIR@/rtorrent.pid")
+runtime_dir="@RT_RUNTIME_DIR@"
+socket_name="@RT_SCGI_SOCKET_NAME@"
+socket_path="${runtime_dir}/${socket_name}"
+pid_file="${runtime_dir}/rtorrent.pid"
+timeout_seconds="${RT_HEALTHCHECK_TIMEOUT:-5}"
+
+[ -s "${pid_file}" ]
+pid=$(cat "${pid_file}")
 kill -0 "${pid}"
-[ -S "@RT_RUNTIME_DIR@/@RT_SCGI_SOCKET_NAME@" ]
+[ -S "${socket_path}" ]
+
+body='<?xml version="1.0"?><methodCall><methodName>system.listMethods</methodName><params></params></methodCall>'
+body_length=${#body}
+header_length=$((83 + ${#body_length}))
+
+response=$(
+  {
+    printf '%s:' "${header_length}"
+    printf 'CONTENT_LENGTH\0%s\0SCGI\0%s\0REQUEST_METHOD\0POST\0REQUEST_URI\0/RPC2\0CONTENT_TYPE\0text/xml\0' "${body_length}" "1"
+    printf ',%s' "${body}"
+  } | socat -T "${timeout_seconds}" - "UNIX-CONNECT:${socket_path}"
+)
+
+case "${response}" in
+  *'<methodResponse>'*) ;;
+  *) exit 1 ;;
+esac
+
+case "${response}" in
+  *'<fault>'*) exit 1 ;;
+esac
 EOL
 sed -i \
   -e "s!@RT_RUNTIME_DIR@!$RT_RUNTIME_DIR!g" \
