@@ -3,11 +3,11 @@ variable "DEFAULT_TAG" {
 }
 
 variable "LIBTORRENT_VERSION" {
-  default = "0.16.13"
+  default = "0.16.14"
 }
 
 variable "RTORRENT_VERSION" {
-  default = "0.16.13"
+  default = "0.16.14"
 }
 
 // Special target: https://github.com/docker/metadata-action#bake-definition

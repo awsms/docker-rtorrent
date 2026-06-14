@@ -10,18 +10,18 @@ the related runtime baggage.
 The `LIBTORRENT_VERSION` and `RTORRENT_VERSION` build args accept upstream git
 refs.
 
-For example, building `docker-rtorrent:0.16.13` uses:
+For example, building `docker-rtorrent:0.16.14` uses:
 
-* git tag `v0.16.13` from `rakshasa/libtorrent`
-* git tag `v0.16.13` from `rakshasa/rtorrent`
+* git tag `v0.16.14` from `rakshasa/libtorrent`
+* git tag `v0.16.14` from `rakshasa/rtorrent`
 
-By default, both `LIBTORRENT_VERSION` and `RTORRENT_VERSION` are `0.16.13`.
-Plain release versions like `0.16.13` are expanded to `v0.16.13`.
+By default, both `LIBTORRENT_VERSION` and `RTORRENT_VERSION` are `0.16.14`.
+Plain release versions like `0.16.14` are expanded to `v0.16.14`.
 
 You can also pass a branch, tag, or full commit hash directly:
 
 * `master`
-* `v0.16.13`
+* `v0.16.14`
 * `04469ae88780bdb53fc7717939dec59342f96e00`
 
 The Docker image tag is independent of those source refs. Tag the built image
@@ -40,18 +40,18 @@ with whatever makes the result clear, such as `docker-rtorrent:master` or
 ## Build
 
 ```sh
-podman build -t docker-rtorrent:0.16.13 \
-  --build-arg LIBTORRENT_VERSION=0.16.13 \
-  --build-arg RTORRENT_VERSION=0.16.13 .
+podman build -t docker-rtorrent:0.16.14 \
+  --build-arg LIBTORRENT_VERSION=0.16.14 \
+  --build-arg RTORRENT_VERSION=0.16.14 .
 ```
 
 Or with Docker:
 
 ```sh
 docker build \
-  --build-arg LIBTORRENT_VERSION=0.16.13 \
-  --build-arg RTORRENT_VERSION=0.16.13 \
-  -t docker-rtorrent:0.16.13 .
+  --build-arg LIBTORRENT_VERSION=0.16.14 \
+  --build-arg RTORRENT_VERSION=0.16.14 \
+  -t docker-rtorrent:0.16.14 .
 ```
 
 Build both projects from current upstream `master`:
@@ -143,7 +143,7 @@ podman-compose logs -f
 The example compose builds and tags the image as:
 
 ```sh
-docker-rtorrent:${RTORRENT_VERSION:-0.16.13}
+docker-rtorrent:${RTORRENT_VERSION:-0.16.14}
 ```
 
 Minimal `docker run`:
@@ -158,7 +158,7 @@ docker run -d --name rtorrent \
   -p 50000:50000 \
   -v "$(pwd)/data:/data" \
   -v "$(pwd)/downloads:/downloads" \
-  docker-rtorrent:0.16.13
+  docker-rtorrent:0.16.14
 ```
 
 ## Notes
